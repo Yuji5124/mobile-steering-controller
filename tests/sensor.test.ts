@@ -4,6 +4,7 @@ import { orientationRoll, smoothSteering, steeringFromTilt } from '../src/sensor
 
 test('maps the landscape screen orientations to consistent roll directions', () => {
   assert.equal(orientationRoll(12, 4, 90), 12);
+  assert.equal(orientationRoll(12, 4, -90), -12);
   assert.equal(orientationRoll(12, 4, 270), -12);
   assert.equal(orientationRoll(12, 4, 0), 4);
   assert.equal(orientationRoll(12, 4, 180), -4);
