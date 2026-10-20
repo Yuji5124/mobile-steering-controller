@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - codex/mobile-steering-controller-phase1-2
+      - main
   workflow_dispatch:
 
 permissions:
