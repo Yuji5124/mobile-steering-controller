@@ -11,7 +11,6 @@ const host = params.get('host');
 const token = params.get('token');
 const status = document.querySelector<HTMLElement>('#status')!;
 const lamp = document.querySelector<HTMLElement>('#lamp')!;
-const wheel = document.querySelector<HTMLElement>('#wheel')!;
 const permission = document.querySelector<HTMLElement>('#permission')!;
 const toast = document.querySelector<HTMLElement>('#toast')!;
 const debugPanel = document.querySelector<HTMLElement>('#debug-panel')!;
@@ -94,7 +93,6 @@ function onOrientation(event: DeviceOrientationEvent) {
   targetSteering = steeringFromTilt(value - baseline, invertSteering);
   filtered = smoothSteering(filtered, targetSteering, smoothingAlpha);
   steering = filtered;
-  wheel.style.transform = `rotate(${steering * 65}deg)`;
 }
 
 async function startSensors() {
@@ -120,8 +118,8 @@ bindHold(document.querySelector('#horn')!, value => { horn = value; document.que
 const wheelArea = document.querySelector<HTMLElement>('.wheel-area')!;
 wheelArea.addEventListener('pointerdown', event => { if (!orientationEnabled || baseline === null) { wheelArea.setPointerCapture(event.pointerId); updateTouch(event.clientX); } });
 wheelArea.addEventListener('pointermove', event => { if ((!orientationEnabled || baseline === null) && event.buttons) updateTouch(event.clientX); });
-wheelArea.addEventListener('pointerup', () => { if (!orientationEnabled || baseline === null) { steering = 0; targetSteering = 0; wheel.style.transform = 'rotate(0deg)'; } });
-function updateTouch(x: number) { const rect = wheelArea.getBoundingClientRect(); steering = Math.max(-1, Math.min(1, ((x - rect.left) / rect.width - 0.5) * 2)); targetSteering = steering; wheel.style.transform = `rotate(${steering * 65}deg)`; }
+wheelArea.addEventListener('pointerup', () => { if (!orientationEnabled || baseline === null) { steering = 0; targetSteering = 0; } });
+function updateTouch(x: number) { const rect = wheelArea.getBoundingClientRect(); steering = Math.max(-1, Math.min(1, ((x - rect.left) / rect.width - 0.5) * 2)); targetSteering = steering; }
 
 function updateDiagnostics() {
   const set = (id: string, text: string) => { document.querySelector<HTMLElement>(`#${id}`)!.textContent = text; };
@@ -148,7 +146,7 @@ document.querySelector('#invert')!.addEventListener('click', event => {
 });
 document.querySelector('#recalibrate')!.addEventListener('click', () => {
   if (!orientationEnabled || roll === null) { showToast('先にセンサーを許可してね'); return; }
-  baseline = roll; filtered = 0; steering = 0; targetSteering = 0; wheel.style.transform = 'rotate(0deg)'; showToast('中央を記録したよ');
+  baseline = roll; filtered = 0; steering = 0; targetSteering = 0; showToast('中央を記録したよ');
 });
 
 function send() {
