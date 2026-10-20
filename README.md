@@ -1,23 +1,36 @@
-# mobile-steering-controller
-## 開発セットアップ
+# Mobile Steering Controller
+
+`kurukuru-drive` 用の iPhone Safari コントローラーです。傾き操舵、タッチ操作、ブレーキ、クラクション、中央キャリブレーション、操舵方向補正、平滑化、通信診断を備えています。
+
+## 開発
 
 ```sh
-npm ci --ignore-scripts --no-audit --no-fund
-npm run dev -- --host 0.0.0.0
+npm ci
+npm run dev
 ```
 
-ローカルの開発デモは `/demo`（または `/?demo=1`）で開きます。デスクトップでは左右矢印キーで操舵し、スペースキーでブレーキを試せます。センサーは「デモをはじめる」を押して許可してください。
+開発サーバーは `http://localhost:5174` で起動します。GitHub Pages のデモ画面は `/?demo=1` で開きます。PCでは左右矢印キー、Spaceで操舵とブレーキを試せます。
 
-コントローラー画面では「ハンドルをつなぐ」を押すとDeviceOrientationの許可を要求し、現在の持ち方を中央として操舵を開始します。設定から感度、反転、手動キャリブレーション、診断表示を調整できます。
+```sh
+npm test
+npm run typecheck
+npm run build
+```
 
-WebSocketクライアントは `?ws=wss%3A%2F%2F<host>%2F<path>` のWSS URLを受け取り、v1 inputメッセージを30Hzで送信します。これは現時点の仮プロトコル実装です。ゲーム側リポジトリに実装がないため、セッション発行、QRコード、認証、再接続、安全停止、実ゲーム互換性は未実装・未検証です。通信先はHTTPSページから到達可能なWSSである必要があります。
+## Renderで同一ホスト配信
 
-iOSの姿勢センサー許可はユーザー操作から要求し、ブラウザーのセキュアコンテキストが必要です。LAN上のHTTP開発サーバーをiPhone Safariで開いてもセンサーを許可できない場合があります。実機確認にはHTTPSホストとTLS証明書を用意してください。iPhone 11 Safariでの横向きセンサー軸・操舵方向はまだ実機検証していません。
+Render構成ではゲーム側 Web Service がこのアプリを `/controller/` から配信します。ゲーム側の `scripts/render-build.sh` がこのリポジトリの指定refを取得し、`VITE_BASE_PATH=/controller/` でビルドします。通常の GitHub Pages ビルドは `/mobile-steering-controller/` をbase pathに保ち、開発時は `/` で開きます。
 
-本プロトタイプの描画は仕様文をもとにCSSで作成しています。デザイン参考画像はこの作業環境では確認できていません。
+QRのURLにはゲームホストと短命セッショントークンが含まれます。コントローラーは同じホストの `/ws` にWSS接続し、iPhone Safariでは「ハンドルをはじめる」を押してセンサー許可を求めます。HTTPSの公開ホストがない状態では、実機確認をPASSにしないでください。
 
-## 公開デモ
+開発者用の ⚙ パネルには生の β/γ、画面角度、補正後傾斜、操舵目標/送信値、送信頻度、ACK RTTを表示します。接続が切れた場合は操舵を中立にし、ブレーキを有効にしてから指数バックオフで再接続します。
 
-GitHub Pagesのデモ: https://yuji5124.github.io/mobile-steering-controller/?demo=1
+## GitHub Pages デモ
 
-このデモは開発用です。PCでは左右矢印キーで操舵し、スペースキーでブレーキを試せます。iPhoneではページ上のボタンからセンサーを許可して操作してください。
+デモURL: https://yuji5124.github.io/mobile-steering-controller/?demo=1
+
+Pagesのデプロイは `.github/workflows/pages.yml` が行います。`main` へのpushでビルド・デプロイされます。デモはセンサーと画面上の車の確認用で、ゲーム接続やセッション認証は行いません。
+
+## 実機確認
+
+iPhone 11 Safariでのセンサー軸、左右方向、遅延、実ゲーム接続は人間による実機確認が必要です。ゲーム画面側の手順は `kurukuru-drive` リポジトリのREADME「Phase 2.5｜iPhone 11 実機確認」を参照してください。
