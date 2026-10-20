@@ -24,6 +24,7 @@ app.innerHTML = `
 <section class="scene">
   <div class="sun"></div><div class="hill left"></div><div class="hill right"></div><div class="tree one">🌳</div><div class="tree two">🌲</div><div class="road"></div>
   <div class="status" id="status"><i class="dot"></i><span>${statusText}</span></div>
+  <div class="rotate-hint" id="rotateHint" hidden>横向きにすると操作しやすいよ ↻</div>
   <button class="settings" id="settings" aria-label="設定">⚙</button>
   <div class="controls">
     <button class="big-button horn" id="horn" aria-label="クラクション">📣</button>
@@ -37,6 +38,18 @@ const status = document.querySelector<HTMLElement>('#status')!;
 const overlay = document.querySelector<HTMLElement>('#overlay')!;
 const wheel = document.querySelector<HTMLElement>('#wheel')!;
 const diag = document.querySelector<HTMLElement>('#diag')!;
+const rotateHint = document.querySelector<HTMLElement>('#rotateHint')!;
+
+function updateOrientationHint(): void {
+  const legacyAngle = (window as Window & { orientation?: number }).orientation;
+  const angles = [screen.orientation?.angle, legacyAngle];
+  const landscapeAngle = angles.some(angle => angle !== undefined && Math.abs(angle % 180) === 90);
+  rotateHint.hidden = window.innerWidth > window.innerHeight || landscapeAngle;
+}
+window.addEventListener('resize', updateOrientationHint);
+window.addEventListener('orientationchange', updateOrientationHint);
+screen.orientation?.addEventListener('change', updateOrientationHint);
+updateOrientationHint();
 
 function setStatus(label: string, kind = ''): void {
   status.querySelector('span')!.textContent = label;
